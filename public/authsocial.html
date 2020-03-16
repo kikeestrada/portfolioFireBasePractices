@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+	<title>Document</title>
+	<style>
+		*,
+		*:after,
+		*:before {
+			box-sizing: border-box;
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+
+<h1>Autenticación social en Firebase</h1>
+<button id="login">
+	<i class="fas fa-sign-in-alt"></i>
+	entra con
+	<i class="fab fa-github"></i>
+</button>
+<div id="login-message"></div>
+<p id="session-message"></p>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-auth.js"></script>
+<script>
+	((d, c, f)=>{
+		// Your web app's Firebase configuration
+		const firebaseConfig = {
+			apiKey: "AIzaSyD-Qblb5uqmrJKT4aOrt8EuHXx3YJCuDO8",
+			authDomain: "edcourse-b6996.firebaseapp.com",
+			databaseURL: "https://edcourse-b6996.firebaseio.com",
+			projectId: "edcourse-b6996",
+			storageBucket: "",
+			messagingSenderId: "268011008914",
+			appId: "1:268011008914:web:e39f7cc3480d3ae4"
+		};
+		// Initialize Firebase
+		f.initializeApp(firebaseConfig);
+		
+		
+		//https://firebase.google.com/docs/auth/
+		const provider = new f.auth.GithubAuthProvider(),
+			user = f.auth.currentUser,
+			loginMessage = d.getElementById('login-message'),
+			authMessage = d.getElementById('session-message');
+		
+		
+		f.auth().onAuthStateChanged(user => {
+			c(user);
+			if (user) {
+				c('Usuario Autenticado');
+				authMessage.innerHTML = `
+            		<p>
+            			Si ves este contenido, es por que estás <b>logueado :)</b>
+					</p>
+            <button id="logout">Salir</button>
+          `
+			} else {
+				c('Usuario NO Autenticado');
+				authMessage.innerHTML = '<p>El contenido de esta sección es para <b>usuarios registrados</b></p>'
+			}
+		});
+		
+		
+		d.addEventListener('click', e => {
+			if (e.target.matches('#login')) {
+				f.auth().signInWithPopup(provider)
+					.then(result => {
+						c(result);
+						loginMessage.innerHTML = `<p class="ok"><b>${result.user.email}</b> ha iniciado sesión con GitHub.</p><img src="${result.user.photoURL}">`
+					})
+					.catch(err => {
+						loginMessage.innerHTML = `<p class="error">Error de Autenticación con GitHub ${err.code}: <b>${err.message}</b>.</p>`
+						c(err)
+					})
+			}
+			if (e.target.matches('#logout')) {
+				f.auth().signOut()
+					.then(() => loginMessage.innerHTML = '<p>sesión terminada</p>')
+			}
+		})
+	})(document, console.log, firebase);
+</script>
+</body>
+</html>

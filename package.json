@@ -1,0 +1,24 @@
+{
+  "name": "course-firebase",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "homepage": "https://kikeestrada.github.io/course-firebase/public",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "gh-pages -d public"
+  },
+  "dependencies": {
+    "gh-pages": "^2.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kikeestrada/course-firebase.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kikeestrada/course-firebase/issues"
+  }
+}

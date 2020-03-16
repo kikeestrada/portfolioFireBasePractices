@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+	<style>
+		*,
+		*:after,
+		*:before {
+			box-sizing: border-box;
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+	<h1>CRUD con Firebase</h1>
+	<br>
+	<h2>Lista de Contactos</h2>
+	<br>
+	<h3>Create / Update</h3>
+	<br>
+	<form>
+		<input type="text" id="name" placeholder="Tu nombre" required>
+		<br><br>
+		<input type="email" id="email" placeholder="Tu email" required>
+		<br><br>
+		<input type="hidden" id="id">
+		<input type="submit" value="Salvar">
+	</form>
+	<br>
+	<h3>Read / Delete</h3>
+	<ul id="contacts"></ul>
+
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+<script>
+	((d, c, f)=>{
+		// Your web app's Firebase configuration
+		const firebaseConfig = {
+			apiKey: "AIzaSyD-Qblb5uqmrJKT4aOrt8EuHXx3YJCuDO8",
+			authDomain: "edcourse-b6996.firebaseapp.com",
+			databaseURL: "https://edcourse-b6996.firebaseio.com",
+			projectId: "edcourse-b6996",
+			storageBucket: "",
+			messagingSenderId: "268011008914",
+			appId: "1:268011008914:web:e39f7cc3480d3ae4"
+		};
+		// Initialize Firebase
+		firebase.initializeApp(firebaseConfig);
+		
+		const
+			db = f.database(),
+			contactsRef = db.ref().child('contacts'),
+			contactsForm = d.forms[0],
+			contactName = d.getElementById('name'),
+			contactEmail = d.getElementById('email'),
+			contactId = d.getElementById('id'),
+			contacts = d.getElementById('contacts')
+		
+		function contactTemplate({ name, email }) {
+			return `
+          <span class="name">${name}</span>
+          -
+          <span class="email">${email}</span>
+          <button class="edit">Editar</button>
+          <button class="delete">Eliminar</button>
+        `
+		}
+		
+		
+		
+		//CREATE
+		contactsForm.addEventListener('submit', e => {
+			e.preventDefault();
+			//alert('Procesando form')
+			let id = contactId.value || contactsRef.push().key,
+				contactData = {
+					name: contactName.value,
+					email: contactEmail.value
+				},
+				updateData = {};
+			updateData[`/${id}`] = contactData;
+			contactsRef.update(updateData);
+			contactId.value = '';
+			contactsForm.reset()
+		});
+		
+		
+		
+		//READ
+		contactsRef.on('child_added', data => {
+			let li = d.createElement('li');
+			li.id = data.key;
+			li.innerHTML = contactTemplate(data.val());
+			contacts.appendChild(li)
+		});
+		
+		
+		contactsRef.on('child_changed', data => {
+			let affectedNode = d.getElementById(data.key);
+			affectedNode.innerHTML = contactTemplate(data.val())
+		});
+		
+		
+		contactsRef.on('child_removed', data => {
+			let affectedNode = d.getElementById(data.key);
+			contacts.removeChild(affectedNode)
+		});
+		
+		
+		
+		
+		d.addEventListener('click', e => {
+			let affectedNode = e.target.parentElement;
+			//UPDATE
+			if (e.target.matches('button.edit')) {
+				//c('Click', affectedNode)
+				contactName.value = affectedNode.querySelector('.name').innerText;
+				contactEmail.value = affectedNode.querySelector('.email').innerText;
+				contactId.value = affectedNode.id
+			}
+			
+			//DELETE
+			if (e.target.matches('button.delete')) {
+				//c('Click', affectedNode)
+				let id = affectedNode.id;
+				db.ref(`contacts/${id}`).remove();
+			}
+		})
+		
+		
+	})(document, console.log, firebase);
+	
+	
+</script>
+</body>
+</html>

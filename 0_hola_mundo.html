@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+</head>
+<body>
+<h1 id="hola"></h1>
+
+
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+
+
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+<script>
+	// Your web app's Firebase configuration
+	const firebaseConfig = {
+		apiKey: "AIzaSyD-Qblb5uqmrJKT4aOrt8EuHXx3YJCuDO8",
+		authDomain: "edcourse-b6996.firebaseapp.com",
+		databaseURL: "https://edcourse-b6996.firebaseio.com",
+		projectId: "edcourse-b6996",
+		storageBucket: "",
+		messagingSenderId: "268011008914",
+		appId: "1:268011008914:web:e39f7cc3480d3ae4"
+	};
+	// Initialize Firebase
+	firebase.initializeApp(firebaseConfig);
+	const hola = document.getElementById('hola'),
+		db = firebase.database(),
+		refText = db.ref().child('text');
+	console.log(db);
+	refText.on('value', data =>{
+		hola.innerText = data.val()
+	});
+	
+	db.ref().child('data-push').push({
+		message : 'Hola insertando datos en el metodo push'
+	});
+	
+	db.ref().child('data-set-push').push().set({
+		message : 'Hola insertando datos ambos metodos: push y set'
+	})
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+	<title>Document</title>
+	<style>
+		*,
+		*:after,
+		*:before {
+			box-sizing: border-box;
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+	<h2>Autenticación con email en Firebase</h2>
+	<h2>Registro de Usuarios (Sign in)</h2>
+	
+	<form id="signin">
+		<input type="text" name="name" placeholder="Tu nombre" required>
+		<br>
+		<input type="email" name="email" placeholder="Tu email" required>
+		<br>
+		<input type="password" name="password" placeholder="Tu contraseña" required>
+		<br>
+		<input type="submit" value="Registrar">
+	</form>
+	
+	<div id="signin-message"></div>
+	
+	<h2>Inicio de Sesión (Log in)</h2>
+	
+	<form id="login">
+		<input type="email" name="email" placeholder="Tu email" required>
+		<br>
+		<input type="password" name="password" placeholder="Tu contraseña" required>
+		<br>
+		<input type="submit" value="Ingresar">
+	</form>
+	
+	<div id="login-message"></div>
+	<p id="session-message"></p>
+
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-auth.js"></script>
+<script>
+	((d, c, f)=>{
+		// Your web app's Firebase configuration
+		const firebaseConfig = {
+			apiKey: "AIzaSyD-Qblb5uqmrJKT4aOrt8EuHXx3YJCuDO8",
+			authDomain: "edcourse-b6996.firebaseapp.com",
+			databaseURL: "https://edcourse-b6996.firebaseio.com",
+			projectId: "edcourse-b6996",
+			storageBucket: "",
+			messagingSenderId: "268011008914",
+			appId: "1:268011008914:web:e39f7cc3480d3ae4"
+		};
+		// Initialize Firebase
+		f.initializeApp(firebaseConfig);
+		
+		const auth = f.auth(),
+			user = auth.currentUser,
+			authMessage = d.getElementById('session-message'),
+			formSignin = d.getElementById('signin'),
+			formLogin = d.getElementById('login');
+		
+		
+		function createUserInDB(uid, name, email) {
+			let usersRef = f.database().ref().child('users');
+			usersRef.child(uid).set({
+				name,
+				email
+			})
+		}
+		
+		
+		auth.onAuthStateChanged(user => {
+			c(user);
+			if (user) {
+				authMessage.innerHTML = `
+            <p>Si ves este contenido, es por que estás <b>logueado :)</b></p>
+            <button id="logout">Salir</button>
+          `
+			} else {
+				authMessage.innerHTML = '<p>El contenido de esta sección es para <b>usuarios registrados</b></p>'
+			}
+		});
+		
+		
+		formSignin.addEventListener('submit', e => {
+			e.preventDefault();
+			alert('Hola');
+			let message = d.getElementById('signin-message');
+			
+			auth.createUserWithEmailAndPassword(
+				e.target.email.value,
+				e.target.password.value
+			)
+				.then(res => {
+					c(res);
+					c(res.user);
+					//Insertar el usuario en la BD
+					createUserInDB(
+						res.user.uid,
+						e.target.name.value,
+						e.target.email.value
+					);
+					message.innerHTML = `<p class="ok">Usuario creado con el correo <b>${e.target.email.value}</b>.</p>`
+					e.target.reset()
+				})
+				.catch(err => {
+					c(err);
+					message.innerHTML = `<p class="error">La cuenta de correo <b>${e.target.email.value}</b> ya existe. Intenta con otra.</p>`
+					e.target.name.focus()
+				})
+		});
+		
+		
+		
+		formLogin.addEventListener('submit', e => {
+			e.preventDefault();
+			let message = d.getElementById('login-message');
+			auth.signInWithEmailAndPassword(
+				e.target.email.value,
+				e.target.password.value
+			)
+				.then(user => {
+					c(user);
+					message.innerHTML = `<p class="ok">Usuario logueado con el correo <b>${e.target.email.value}</b>.</p>`
+					e.target.reset()
+				})
+				.catch(err => {
+					c(err);
+					message.innerHTML = `<p class="error">Correo electrónico o password no son válidos. Verifica nuevamente tus datos<b>.</p>`
+					e.target.password.focus()
+				})
+		});
+		
+		
+		
+		d.addEventListener('click', e => {
+			if (e.target.matches('#logout')) {
+				auth.signOut()
+					.then(() => {
+						c('Sesión terminada');
+						authMessage.innerHTML = '<p>Sesión Terminada</p>'
+					})
+			}
+		})
+		
+		
+		
+	})(document, console.log, firebase);
+</script>
+</body>
+</html>
